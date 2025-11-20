@@ -4,7 +4,8 @@ import { HttpServer } from '@op-engineering/op-server';
 let server = new HttpServer();
 server.get('/ping', async (req: any, res: any) => {
   // res.text('pong');
-  return 'pong';
+  // return 'pong';
+  throw new Error('Blah');
 });
 server.listen(3000);
 

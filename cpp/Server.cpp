@@ -17,51 +17,76 @@ Server::Server(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
     const std::string path = args[1].asString(rt).utf8(rt);
     auto callback = std::make_shared<jsi::Value>(rt, args[2]);
 
-    if (method == "GET") {
-      server.Get(
-          path, [this, &rt, invoker, callback](const httplib::Request &req,
-                                               httplib::Response &res) {
-            auto responseDone = std::make_shared<std::promise<std::string>>();
-            auto responseFuture = responseDone->get_future();
+    // Abstracted request handler
+    auto handleRequest = [this, &rt, invoker,
+                          callback](const httplib::Request &req,
+                                    httplib::Response &res) {
+      auto responseDone = std::make_shared<std::promise<std::string>>();
+      auto responseFuture = responseDone->get_future();
 
-            invoker->invokeAsync([callback, responseDone](jsi::Runtime &rt) {
-              try {
-                auto promise = callback->asObject(rt).asFunction(rt).call(rt);
+      invoker->invokeAsync([callback, responseDone](jsi::Runtime &rt) {
+        try {
+          auto promise = callback->asObject(rt).asFunction(rt).call(rt);
 
-                if (promise.isObject()) {
-                  auto promiseObj = promise.asObject(rt);
-                  auto then = promiseObj.getPropertyAsFunction(rt, "then");
+          auto promiseObj = promise.asObject(rt);
+          auto then_fn = promiseObj.getPropertyAsFunction(rt, "then");
+          auto catch_fn = promiseObj.getPropertyAsFunction(rt, "catch");
 
-                  // Create success handler
-                  auto successHandler = HFN(responseDone) {
-                    if (count > 0 && args[0].isString()) {
-                      responseDone->set_value(args[0].asString(rt).utf8(rt));
-                    } else {
-                      responseDone->set_value("Success!");
-                    }
-                    return jsi::Value::undefined();
-                  });
-
-                  then.callWithThis(rt, promiseObj, successHandler);
-                }
-              } catch (const std::exception &e) {
-                responseDone->set_value(std::string("Error: ") + e.what());
-              }
-            });
-                                                 
-            if (responseFuture.wait_for(std::chrono::seconds(5)) ==
-                std::future_status::ready) {
-              res.set_content(responseFuture.get(), "text/plain");
+          // Create success handler
+          auto success_handler = HFN(responseDone) {
+            if (count > 0 && args[0].isString()) {
+              responseDone->set_value(args[0].asString(rt).utf8(rt));
             } else {
-              res.set_content("Timeout", "text/plain");
+              responseDone->set_value("Success!");
             }
+            return jsi::Value::undefined();
           });
 
+          // reject handler
+          auto reject_handler = HFN(responseDone) {
+            std::string errorMsg = "Error: ";
+            if (count > 0) {
+              if (args[0].isString()) {
+                errorMsg += args[0].asString(rt).utf8(rt);
+              } else if (args[0].isObject()) {
+                auto errObj = args[0].asObject(rt);
+                if (errObj.hasProperty(rt, "message")) {
+                  auto msgVal = errObj.getProperty(rt, "message");
+                  if (msgVal.isString()) {
+                    errorMsg += msgVal.asString(rt).utf8(rt);
+                  }
+                }
+              }
+            }
+            responseDone->set_value(errorMsg);
+            return jsi::Value::undefined();
+          });
+
+          then_fn.callWithThis(rt, promiseObj, success_handler);
+          catch_fn.callWithThis(rt, promiseObj, reject_handler);
+
+        } catch (const std::exception &e) {
+          responseDone->set_value(std::string("Error: ") + e.what());
+        }
+      });
+
+      if (responseFuture.wait_for(std::chrono::seconds(5)) ==
+          std::future_status::ready) {
+        res.set_content(responseFuture.get(), "text/plain");
+      } else {
+        res.set_content("Timeout", "text/plain");
+      }
+    };
+
+    // Register the appropriate HTTP method
+    if (method == "GET") {
+      server.Get(path, handleRequest);
     } else if (method == "POST") {
-      server.Post(path,
-                  [callback](const httplib::Request &, httplib::Response &res) {
-                    res.set_content("Hello World!", "text/plain");
-                  });
+      server.Post(path, handleRequest);
+    } else if (method == "PUT") {
+      server.Put(path, handleRequest);
+    } else if (method == "DELETE") {
+      server.Delete(path, handleRequest);
     }
 
     return {};
