@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Server.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
 #include "macros.hpp"
 #include <future>
 #include <iostream>
@@ -17,48 +19,59 @@ Server::Server(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
     const std::string path = args[1].asString(rt).utf8(rt);
     auto callback = std::make_shared<jsi::Value>(rt, args[2]);
 
-    // Abstracted request handler
     auto handleRequest = [this, &rt, invoker,
                           callback](const httplib::Request &req,
                                     httplib::Response &res) {
-      auto responseDone = std::make_shared<std::promise<std::string>>();
+      auto responseDone = std::make_shared<std::promise<void>>();
       auto responseFuture = responseDone->get_future();
 
-      invoker->invokeAsync([callback, responseDone](jsi::Runtime &rt) {
+      // Create shared pointer to Response object that will be modified by JS
+      auto responseObj = std::make_shared<Response>();
+
+      invoker->invokeAsync([callback, responseDone, responseObj,
+                            req](jsi::Runtime &rt) {
         try {
-          auto promise = callback->asObject(rt).asFunction(rt).call(rt);
+          // Create Request and Response HostObjects
+          auto requestHostObj = std::make_shared<Request>(req);
+          auto reqJSI = jsi::Object::createFromHostObject(rt, requestHostObj);
+          auto resJSI = jsi::Object::createFromHostObject(rt, responseObj);
+
+          // Call the callback with req and res objects
+          auto promise =
+              callback->asObject(rt).asFunction(rt).call(rt, reqJSI, resJSI);
 
           auto promiseObj = promise.asObject(rt);
           auto then_fn = promiseObj.getPropertyAsFunction(rt, "then");
           auto catch_fn = promiseObj.getPropertyAsFunction(rt, "catch");
 
-          // Create success handler
           auto success_handler = HFN(responseDone) {
-            if (count > 0 && args[0].isString()) {
-              responseDone->set_value(args[0].asString(rt).utf8(rt));
-            } else {
-              responseDone->set_value("Success!");
-            }
+            responseDone->set_value();
             return jsi::Value::undefined();
           });
 
-          // reject handler
-          auto reject_handler = HFN(responseDone) {
-            std::string errorMsg = "Error: ";
+          auto reject_handler = HFN2(responseDone, responseObj) {
+            // On error, set error response
+            responseObj->set(rt, jsi::PropNameID::forUtf8(rt, "statusCode"),
+                             jsi::Value(500));
+
+            std::string errorMsg = "Internal Server Error";
             if (count > 0) {
               if (args[0].isString()) {
-                errorMsg += args[0].asString(rt).utf8(rt);
+                errorMsg = args[0].asString(rt).utf8(rt);
               } else if (args[0].isObject()) {
                 auto errObj = args[0].asObject(rt);
                 if (errObj.hasProperty(rt, "message")) {
                   auto msgVal = errObj.getProperty(rt, "message");
                   if (msgVal.isString()) {
-                    errorMsg += msgVal.asString(rt).utf8(rt);
+                    errorMsg = msgVal.asString(rt).utf8(rt);
                   }
                 }
               }
             }
-            responseDone->set_value(errorMsg);
+
+            responseObj->set(rt, jsi::PropNameID::forUtf8(rt, "content"),
+                             jsi::String::createFromUtf8(rt, errorMsg));
+            responseDone->set_value();
             return jsi::Value::undefined();
           });
 
@@ -66,15 +79,22 @@ Server::Server(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
           catch_fn.callWithThis(rt, promiseObj, reject_handler);
 
         } catch (const std::exception &e) {
-          responseDone->set_value(std::string("Error: ") + e.what());
+          responseObj->set(rt, jsi::PropNameID::forUtf8(rt, "statusCode"),
+                           jsi::Value(500));
+          responseObj->set(rt, jsi::PropNameID::forUtf8(rt, "content"),
+                           jsi::String::createFromUtf8(
+                               rt, std::string("Error: ") + e.what()));
+          responseDone->set_value();
         }
       });
 
       if (responseFuture.wait_for(std::chrono::seconds(5)) ==
           std::future_status::ready) {
-        res.set_content(responseFuture.get(), "text/plain");
+        // Apply the Response HostObject changes back to httplib::Response
+        responseObj->applyTo(res);
       } else {
-        res.set_content("Timeout", "text/plain");
+        res.status = 408;
+        res.set_content("Request Timeout", "text/plain");
       }
     };
 
@@ -92,21 +112,13 @@ Server::Server(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
     return {};
   });
 
-  //  function_map["getIp"] = HFN(this) {
-  //    std::string ip;
-  //    int port;
-  //    // Get the local IP and port from the server socket
-  //    auto sock = server.socket();
-  //    if (sock != -1) {
-  //      detail::get_local_ip_and_port(sock, ip, port);
-  //      return jsi::String::createFromUtf8(rt, ip);
-  //    }
-  //
-  //    return jsi::Value::undefined();
-  //  });
-
   function_map["listen"] = HFN(this) {
     std::thread([this]() { server.listen("0.0.0.0", 3000); }).detach();
+    return {};
+  });
+
+  function_map["stop"] = HFN(this) {
+    server.stop();
     return {};
   });
 }
@@ -137,9 +149,7 @@ void Server::set(jsi::Runtime &_rt, const jsi::PropNameID &name,
   throw std::runtime_error("You cannot write to this object!");
 }
 
-void Server::stop() {
-  //  http_server_
-}
+void Server::stop() { server.stop(); }
 
 Server::~Server() {
 

@@ -6,6 +6,24 @@ type OPServerProxy = {
   create: () => Object;
 };
 
+export interface Request {
+  method: string;
+  path: string;
+  body: string;
+  headers: Record<string, string>;
+  params: Record<string, string>;
+}
+
+export interface Response {
+  statusCode: number;
+  content: string;
+  contentType: string;
+  headers: Record<string, string>;
+  setHeader(key: string, value: string): void;
+}
+
+type RequestHandler = (req: Request, res: Response) => Promise<void>;
+
 declare global {
   var __OPServerProxy: object | undefined;
 }
@@ -40,16 +58,16 @@ export class HttpServer {
     this._server.listen(port);
   }
 
-  get(path: string, callback: () => void) {
+  get(path: string, callback: RequestHandler) {
     this._server.callback('GET', path, callback);
   }
-  POST(path: string, callback: () => void) {
+  POST(path: string, callback: RequestHandler) {
     this._server.callback('POST', path, callback);
   }
-  PUT(path: string, callback: () => void) {
+  PUT(path: string, callback: RequestHandler) {
     this._server.callback('PUT', path, callback);
   }
-  DELETE(path: string, callback: () => void) {
+  DELETE(path: string, callback: RequestHandler) {
     this._server.callback('DELETE', path, callback);
   }
 
