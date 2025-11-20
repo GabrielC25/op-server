@@ -1,12 +1,17 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from '@op-engineering/op-server';
+import { HttpServer } from '@op-engineering/op-server';
 
-const result = multiply(3, 7);
+let server = new HttpServer();
+server.get('/ping', async (req: any, res: any) => {
+  // res.text('pong');
+  return 'pong';
+});
+server.listen(3000);
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>ServerStarted</Text>
     </View>
   );
 }
