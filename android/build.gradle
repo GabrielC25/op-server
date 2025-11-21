@@ -63,11 +63,21 @@ android {
     prefabPublishing true
   }
 
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
 
   prefab {
     "op-server" {
       headers "${project.buildDir}/headers/op-server/"
     }
+  }
+
+  lintOptions {
+    disable "GradleCompatible"
   }
 
   packagingOptions {
@@ -89,17 +99,6 @@ android {
             "**/libreact_nativemodule_core.so",
             "**/libjscexecutor.so"
     ]
-  }
-
-  buildTypes {
-    release {
-      minifyEnabled false
-    }
-  }
-
-  lint {
-    disable "GradleCompatible"
-    abortOnError false
   }
 
   compileOptions {
@@ -128,3 +127,12 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
+
+tasks.register('prepareHeaders', Copy) {
+  from('../cpp')
+  include "**/*.h", "**/*.hpp"
+  into "${project.buildDir}/headers/op-server/op-engineering_op-server/"
+  includeEmptyDirs = false
+}
+
+preBuild.dependsOn(prepareHeaders)
