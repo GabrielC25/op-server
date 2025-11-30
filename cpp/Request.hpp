@@ -11,12 +11,10 @@ namespace jsi = facebook::jsi;
 
 class JSI_EXPORT Request : public jsi::HostObject {
 public:
-  Request(const httplib::Request &req);
+  explicit Request(const httplib::Request &req);
 
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
   jsi::Value get(jsi::Runtime &rt, const jsi::PropNameID &propNameID) override;
-  void set(jsi::Runtime &rt, const jsi::PropNameID &name,
-           const jsi::Value &value) override;
 
 private:
   std::string method;

@@ -1,3 +1,6 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 #include "Response.hpp"
 #include "macros.hpp"
 
@@ -23,7 +26,7 @@ jsi::Value Response::get(jsi::Runtime &rt, const jsi::PropNameID &propNameID) {
   const auto name = propNameID.utf8(rt);
 
   if (name == "statusCode") {
-    return jsi::Value(statusCode);
+    return {statusCode};
   }
 
   if (name == "content") {
@@ -90,11 +93,13 @@ void Response::set(jsi::Runtime &rt, const jsi::PropNameID &propNameID,
 
 void Response::applyTo(httplib::Response &res) {
   res.status = statusCode;
-  res.set_content(content, contentType.c_str());
+  res.set_content(content, contentType);
 
   for (const auto &header : headers) {
-    res.set_header(header.first.c_str(), header.second.c_str());
+    res.set_header(header.first, header.second);
   }
 }
 
 } // namespace opserver
+
+#pragma clang diagnostic pop

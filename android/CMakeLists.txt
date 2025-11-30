@@ -1,11 +1,17 @@
 project(OPServer)
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.22.1)
 
 set (PACKAGE_NAME "op-server")
+
+include_directories(
+  ../cpp
+  src/main/cpp
+)
 
 file(GLOB_RECURSE shared_files RELATIVE ${CMAKE_SOURCE_DIR}
      "../cpp/**.cpp"
 )
+
 file(GLOB_RECURSE android_files RELATIVE ${CMAKE_SOURCE_DIR}
      "src/main/cpp/**.cpp"
 )
@@ -17,16 +23,6 @@ add_library(
   ${android_files}
 )
 
-include_directories(
-  ../cpp
-  # Android-specific C++ includes
-  src/main/cpp/core
-  src/main/cpp/registry
-  src/main/cpp/turbomodule
-  src/main/cpp/platform
-  src/main/cpp/utils
-  src/main/cpp/views
-)
 
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)

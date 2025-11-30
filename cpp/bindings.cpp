@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 namespace opserver {
 
 namespace jsi = facebook::jsi;
@@ -39,3 +41,5 @@ void install(jsi::Runtime &rt,
 }
 
 } // namespace opserver
+
+#pragma clang diagnostic pop

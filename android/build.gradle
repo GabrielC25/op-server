@@ -69,7 +69,6 @@ android {
     }
   }
 
-
   prefab {
     "op-server" {
       headers "${project.buildDir}/headers/op-server/"

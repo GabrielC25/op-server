@@ -1,7 +1,6 @@
 {
   "name": "@op-engineering/op-server",
-  "private": false,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Fast HTTP Server for React Native",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -55,6 +54,7 @@
   },
   "homepage": "https://github.com/OP-Engineering/op-server#readme",
   "publishConfig": {
+    "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {

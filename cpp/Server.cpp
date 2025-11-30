@@ -1,4 +1,5 @@
-#pragma once
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 
 #include "Server.hpp"
 #include "Request.hpp"
@@ -12,14 +13,13 @@ namespace opserver {
 namespace jsi = facebook::jsi;
 namespace react = facebook::react;
 
-Server::Server(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> invoker) {
-
+Server::Server(jsi::Runtime &rt, const std::shared_ptr<react::CallInvoker>& invoker) {
   function_map["callback"] = HFN2(this, invoker) {
     const std::string method = args[0].asString(rt).utf8(rt);
     const std::string path = args[1].asString(rt).utf8(rt);
     auto callback = std::make_shared<jsi::Value>(rt, args[2]);
 
-    auto handleRequest = [this, &rt, invoker,
+    auto handleRequest = [invoker,
                           callback](const httplib::Request &req,
                                     httplib::Response &res) {
       auto responseDone = std::make_shared<std::promise<void>>();
@@ -148,15 +148,8 @@ jsi::Value Server::get(jsi::Runtime &rt, const jsi::PropNameID &propNameID) {
   return {rt, function_map[name]};
 }
 
-void Server::set(jsi::Runtime &_rt, const jsi::PropNameID &name,
-                 const jsi::Value &value) {
-  throw std::runtime_error("You cannot write to this object!");
-}
-
 void Server::stop() { server.stop(); }
 
-Server::~Server() {
-
-};
-
 } // namespace opserver
+
+#pragma clang diagnostic pop

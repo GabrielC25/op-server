@@ -65,10 +65,4 @@ jsi::Value Request::get(jsi::Runtime &rt, const jsi::PropNameID &propNameID) {
   return jsi::Value::undefined();
 }
 
-void Request::set(jsi::Runtime &rt, const jsi::PropNameID &name,
-                  const jsi::Value &value) {
-  // Request is read-only from JS side
-  throw jsi::JSError(rt, "Request object is read-only");
-}
-
 } // namespace opserver
